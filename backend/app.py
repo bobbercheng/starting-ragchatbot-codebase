@@ -6,8 +6,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict
 import os
+import logging
+import traceback
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 from config import config
 from rag_system import RAGSystem
@@ -44,6 +50,7 @@ class QueryResponse(BaseModel):
     """Response model for course queries"""
     answer: str
     sources: List[str]
+    source_links: List[Dict[str, Optional[str]]]
     session_id: str
 
 class CourseStats(BaseModel):
@@ -63,14 +70,25 @@ async def query_documents(request: QueryRequest):
             session_id = rag_system.session_manager.create_session()
         
         # Process query using RAG system
-        answer, sources = rag_system.query(request.query, session_id)
+        answer, sources, source_links = rag_system.query(request.query, session_id)
+        
+        # Log the data we're trying to validate
+        logger.info(f"RAG query result - answer type: {type(answer)}, answer value: {answer}")
+        logger.info(f"RAG query result - sources type: {type(sources)}, sources: {sources}")
+        logger.info(f"RAG query result - source_links type: {type(source_links)}, source_links: {source_links}")
         
         return QueryResponse(
             answer=answer,
             sources=sources,
+            source_links=source_links,
             session_id=session_id
         )
     except Exception as e:
+        # Log the full exception details
+        logger.error(f"Error processing query: {request.query}")
+        logger.error(f"Exception type: {type(e).__name__}")
+        logger.error(f"Exception message: {str(e)}")
+        logger.error(f"Full traceback:\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/courses", response_model=CourseStats)
@@ -83,6 +101,10 @@ async def get_course_stats():
             course_titles=analytics["course_titles"]
         )
     except Exception as e:
+        logger.error(f"Error getting course stats")
+        logger.error(f"Exception type: {type(e).__name__}")
+        logger.error(f"Exception message: {str(e)}")
+        logger.error(f"Full traceback:\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.on_event("startup")
