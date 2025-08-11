@@ -187,7 +187,7 @@ class CourseOutlineTool(Tool):
         """Return Anthropic tool definition for this tool"""
         return {
             "name": "get_course_outline",
-            "description": "Get course outline including title, course link, and complete lesson list",
+            "description": "Get course outline including course title, course link, and complete lesson list including each lesson number, lesson title and lesson link",
             "input_schema": {
                 "type": "object",
                 "properties": {

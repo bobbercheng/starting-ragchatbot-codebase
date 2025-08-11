@@ -39,6 +39,10 @@ class Config:
     ENABLE_SYNTHESIS_FALLBACK: bool = os.getenv("ENABLE_SYNTHESIS_FALLBACK", "true").lower() == "true"
     SKIP_SYNTHESIS_FOR_ANTHROPIC: bool = os.getenv("SKIP_SYNTHESIS_FOR_ANTHROPIC", "false").lower() == "true"
     
+    # Sequential Tool Calling settings
+    MAX_TOOL_ROUNDS: int = int(os.getenv("MAX_TOOL_ROUNDS", "2"))
+    ENABLE_SEQUENTIAL_TOOLS: bool = os.getenv("ENABLE_SEQUENTIAL_TOOLS", "true").lower() == "true"
+    
     # Database paths
     CHROMA_PATH: str = "./chroma_db"  # ChromaDB storage location
 

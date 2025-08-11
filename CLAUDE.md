@@ -140,4 +140,4 @@ Content here...
 
 Supports `.txt`, `.pdf`, `.docx` files.
 - always use uv to run the server or install python package do not use pip directly
-- use uv to run Python files/code
+- use uv to run Python files/code including test file
